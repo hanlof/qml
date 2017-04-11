@@ -4,23 +4,12 @@ import QtQuick.Controls 1.5
 ApplicationWindow {
     id: mainWindow
     visible: true
-    width: 640
-    height: 480
+    width: 800
+    height: 600
     title: qsTr("Hello World")
     property real displayedTimeStart: sliderStart.value
     property real displayedTimeEnd: sliderEnd.value
     property real displayedTimeTotal: displayedTimeEnd - displayedTimeStart
-
-    ListModel {
-      id: testModel
-      property real minTime: 1491313851.123363
-      property real maxTime: 1491313852.329373
-      ListElement { s: 3.5; e: 4.7 }
-      ListElement { s: 9.5; e: 9.7 }
-      ListElement { s: 4.5; e: 6.7 }
-      ListElement { s: 7.5; e: 9.7 }
-      ListElement { s: 5.5; e: 11.7 }
-    }
 
     ListView {
         id: list
@@ -30,11 +19,11 @@ ApplicationWindow {
         model: dataList
         spacing: 1
         height: mainWindow.height - 60
-        property var colors: [ "darkblue", "blue" ]
+        property var colors: [ "#eeeeee", "#f8f8f8" ]
         delegate: Rectangle {
             height: 18
-         //   color: list.colors[ index % list.colors.length ]
-            color: "#eeeeee"
+            color: list.colors[ index % list.colors.length ]
+            //color: "#eeeeee"
             width: parent.width
 
             Rectangle {
@@ -60,31 +49,24 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         Row {
             anchors.centerIn: parent
+            spacing: 5
+            width: parent.width - spacing * 2
             Slider {
                 id: sliderStart
-      minimumValue: 1491831099.5 // 1491313851.123363
-      maximumValue: 1491831102.99 // 1491313852.429373
-                //minimumValue: 0
-                //maximumValue: 30
-                value: testModel.minTime
-                width: 600
-            }
-            Rectangle {
-                width: 20
-                height: 10
-                color: "transparent"
+                minimumValue: minMax.s
+                maximumValue: minMax.e
+                value: minimumValue
+                width: (parent.width - parent.spacing) / 2
             }
 
             Slider {
                 id: sliderEnd
-      minimumValue: 1491831099.5 // 1491313851.123363
-      maximumValue: 1491831102.99 // 1491313852.429373
-      //          minimumValue: 0
-       //         maximumValue: 30
-                value: testModel.maxTime
-                width: 600
+                minimumValue: minMax.s
+                maximumValue: minMax.e
+                value: maximumValue
+                width: (parent.width - parent.spacing) / 2
             }
         }
     }
-
+//    Text { text: sliderStart.value + " " + sliderEnd.value }
 }

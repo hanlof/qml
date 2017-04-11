@@ -21,8 +21,11 @@
 // * show wait() and maybe other syscalls within the bar for each process
 // * do gridlines
 // * display times in the gui somehow, perhaps on an user action (mouseover or clicking a process box)
-// *
 
+bool comp(const DataObject &a, const DataObject &b)
+{
+    return a.s() > b.s();
+}
 
 
 int main(int argc, char *argv[])
@@ -34,17 +37,7 @@ int main(int argc, char *argv[])
     //tc.times()->append(new DataObject(1.0, 2.5));
 
     QList<QObject*> dataList;
-    /*
-    dataList.append(new DataObject(2.1, 3.0));
-    dataList.append(new DataObject(0.4, 3.5));
-    dataList.append(new DataObject(1.5, 3.7));
-    dataList.append(new DataObject(1.5, 4.7));
-    dataList.append(new DataObject(1.5, 2.7));
-    dataList.append(new DataObject(1.6, 2.5));
-    dataList.append(new DataObject(1.5, 1.7));
-    dataList.append(new DataObject(1.6, 1.9));
-    dataList.append(new DataObject(1.5, 1.9));
-    */
+
 
     QHash<QString, QString> unfinished;
     QHash<QString, double> startTimes;
@@ -59,7 +52,6 @@ int main(int argc, char *argv[])
     int exits = 0;
     if (inputFile.open(QIODevice::ReadOnly))
     {
-        dataList.append(new DataObject(1.5, 1.9));
         QTextStream in(&inputFile);
         int i = 0;
         while (!in.atEnd())
@@ -136,8 +128,25 @@ int main(int argc, char *argv[])
 
     QVariant kalle = QVariant::fromValue(QList<QObject*>(dataList));
 
-    //apa.setProperty("min", 7.8);
+    qreal min = dataList.at(0)->property("s").toDouble();
+    qreal max = dataList.at(0)->property("e").toDouble();
+    foreach(QObject *o, dataList) {
+        if (o->property("s").toDouble() < min) {
+            min = o->property("s").toDouble();
+        }
+        if (o->property("s").toDouble() > max) {
+            max = o->property("e").toDouble();
+        }
+        qInfo() << "min" << min;
+        qInfo() << "max" << max;
+    }
+
+    min -= (max - min) * 0.02;
+    max += (max - min) * 0.02;
+    DataObject minMax(min,max,"apa");
+    //std::sort(dataList.begin(), dataList.end());
     ctx->setContextProperty("dataList", QVariant::fromValue(QList<QObject*>(dataList)));
+    ctx->setContextProperty("minMax", &minMax);
 
     //setProperty("min", QVariant::fromValue(QString("kalle")));
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
