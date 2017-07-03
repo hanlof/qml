@@ -9,8 +9,8 @@
 #include <QDebug>
 #include <QHash>
 
-// * sort out the starting view. get min/max values into QML somehow and zoom to relevant timespan
-// * make sliders dynamic width
+// DONE make sliders dynamic width
+// DONE sort out the starting view. get min/max values into QML somehow and zoom to relevant timespan
 // * make a better interface for changing displayed timespan
 // * group rows by parent pid somehow
 // * wrap it up in a script that runs strace
@@ -22,11 +22,7 @@
 // * do gridlines
 // * display times in the gui somehow, perhaps on an user action (mouseover or clicking a process box)
 
-bool comp(const DataObject &a, const DataObject &b)
-{
-    return a.s() > b.s();
-}
-
+// Try some layouts in pure xml
 
 int main(int argc, char *argv[])
 {
@@ -62,6 +58,7 @@ int main(int argc, char *argv[])
             QString pid(rx.cap(1));
             QString time(rx.cap(2));
             QString rest(rx.cap(3));
+            /*
             if (i < 5) {
                 qInfo() << line;
                 qInfo() << " " << j << " " << pid;
@@ -69,6 +66,8 @@ int main(int argc, char *argv[])
                 qInfo() << " " << j << " " << rest;
                 qInfo() << " " << j << " " << rx.cap(0) ;
             }
+            i++;
+            */
             if (QRegExp("^(.*) <unfinished \\.\\.\\.>$").indexIn(rest) > -1) {
           //      qInfo() << pid << " unfinished " << rest;
                 unfinished.insert(pid, rest);
@@ -95,7 +94,7 @@ int main(int argc, char *argv[])
 
             if (QRegExp("^\\+\\+\\+ exited with (\\d+) \\+\\+\\+$").indexIn(rest) > -1) {
                 exits++;
-                qInfo() << exits << " exit " << pid;
+          //      qInfo() << exits << " exit " << pid;
 
                 if (startTimes.contains(pid)) {
                     dataList.append(new DataObject( startTimes.value(pid), time.toDouble(), startNames.value(pid) ) );
@@ -108,13 +107,12 @@ int main(int argc, char *argv[])
             QRegExp execRx("execve.*= 0 <(.*)>$");
             if (execRx.indexIn(rest) > -1) {
                 execs++;
-                qInfo() << execs << " " << pid << " " << time << " " << rest << " " << execRx.cap(1);
+           //     qInfo() << execs << " " << pid << " " << time << " " << rest << " " << execRx.cap(1);
 
                 startTimes.insert(pid, time.toDouble());
                 startNames.insert(pid, rest);
             }
 
-            i++;
         }
         inputFile.close();
     } else {
@@ -137,12 +135,14 @@ int main(int argc, char *argv[])
         if (o->property("s").toDouble() > max) {
             max = o->property("e").toDouble();
         }
-        qInfo() << "min" << min;
-        qInfo() << "max" << max;
+       // qInfo() << "min" << min;
+       // qInfo() << "max" << max;
     }
 
+    /*
     min -= (max - min) * 0.02;
     max += (max - min) * 0.02;
+    */
     DataObject minMax(min,max,"apa");
     //std::sort(dataList.begin(), dataList.end());
     ctx->setContextProperty("dataList", QVariant::fromValue(QList<QObject*>(dataList)));

@@ -10,8 +10,17 @@ ApplicationWindow {
     property real displayedTimeStart: sliderStart.value
     property real displayedTimeEnd: sliderEnd.value
     property real displayedTimeTotal: displayedTimeEnd - displayedTimeStart
-
     ListView {
+    /*    MouseArea {
+            anchors.fill: parent
+            onWheel: function() {
+                         sliderStart.value = sliderStart.minimumValue;
+                         sliderStart.accessibleIncreaseAction(1);
+                         return 0;
+                     }
+        } */
+
+
         id: list
         anchors.top: parent.top
         anchors.left: parent.left
@@ -28,18 +37,47 @@ ApplicationWindow {
 
             Rectangle {
                 height: parent.height
-                x: mainWindow.width * ((s - sliderStart.value) / mainWindow.displayedTimeTotal)
-                property real rightX: mainWindow.width * ((e - sliderStart.value) / mainWindow.displayedTimeTotal)
-                width: rightX - x > 1 ? rightX - x : 1
+                x: parent.width * ((s - sliderStart.value) / mainWindow.displayedTimeTotal)
+                property real rightX: parent.width * ((e - sliderStart.value) / mainWindow.displayedTimeTotal)
+                width: rightX - x > 3 ? rightX - x : 3
                 color: "white"
                 border.color: "black"
                 border.width: 1
                 Text {
-                    text: name
+                    height: parent.height
+                    text: Math.round( (e - s) * 1000) + "ms " + name
+                    verticalAlignment: Text.AlignVCenter
                 }
             }
         }
     }
+
+    Repeater {
+        property int lineSpacing: 100
+        property int lineCount: Math.round(mainWindow.width / lineSpacing)
+
+        property real timeSpacing: mainWindow.displayedTimeTotal / lineCount
+        property real log: Math.ceil(Math.log(mainWindow.displayedTimeTotal, 10))
+
+        id: rep
+        model: lineCount
+
+        delegate: Rectangle {
+            color: "blue"
+            x: modelData * rep.lineSpacing
+
+            y: 0
+            width: 1
+            height: parent.height
+            Text {
+                height: childrenRect.height
+                //x: parent.x + 3
+                text: "hej: " + rep.log + " " + 1000 * index * Math.pow(10, rep.log) + "ms"
+                color: "blue"
+            }
+        }
+    }
+
 
     Rectangle {
         id: controlBar
